@@ -89,6 +89,18 @@ mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\support\contro
 --
 mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\support\views\o" "D:\htdocs\_project_ommu_module_support\modules\support\views\o"
 
+///banner\\\
+mklink /J "D:\htdocs\_product_oos_career_center\externals\banner" "D:\htdocs\_project_ommu_module_banner\externals\banner"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\banner\banner.yaml" "D:\htdocs\_project_ommu_module_banner\modules\banner\banner.yaml"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\banner\LICENSE" "D:\htdocs\_project_ommu_module_banner\modules\banner\LICENSE"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\assets" "D:\htdocs\_project_ommu_module_banner\modules\banner\assets"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\components" "D:\htdocs\_project_ommu_module_banner\modules\banner\components"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\models" "D:\htdocs\_project_ommu_module_banner\modules\banner\models"
+--
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\controllers\o" "D:\htdocs\_project_ommu_module_banner\modules\banner\controllers\o"
+--
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\views\o" "D:\htdocs\_project_ommu_module_banner\modules\banner\views\o"
+
 
 
 
@@ -120,13 +132,3 @@ mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\article\contro
 --
 mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\article\views\o" "D:\htdocs\_project_ommu_module_articles\modules\article\views\o"
 mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\article\views\media" "D:\htdocs\_project_ommu_module_articles\modules\article\views\media"
-///banner\\\
-mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\banner\banner.yaml" "D:\htdocs\_project_ommu_module_banner\modules\banner\banner.yaml"
-mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\banner\LICENSE" "D:\htdocs\_project_ommu_module_banner\modules\banner\LICENSE"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\assets" "D:\htdocs\_project_ommu_module_banner\modules\banner\assets"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\components" "D:\htdocs\_project_ommu_module_banner\modules\banner\components"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\models" "D:\htdocs\_project_ommu_module_banner\modules\banner\models"
---
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\controllers\o" "D:\htdocs\_project_ommu_module_banner\modules\banner\controllers\o"
---
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\views\o" "D:\htdocs\_project_ommu_module_banner\modules\banner\views\o"
