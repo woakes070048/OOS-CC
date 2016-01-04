@@ -101,6 +101,18 @@ mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\control
 --
 mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\banner\views\o" "D:\htdocs\_project_ommu_module_banner\modules\banner\views\o"
 
+///album\\\
+mklink /J "D:\htdocs\_product_oos_career_center\externals\album" "D:\htdocs\_project_ommu_module_albums\externals\album"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\album\album.yaml" "D:\htdocs\_project_ommu_module_albums\modules\album\album.yaml"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\album\LICENSE" "D:\htdocs\_project_ommu_module_albums\modules\album\LICENSE"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\album\assets" "D:\htdocs\_project_ommu_module_albums\modules\album\assets"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\album\components" "D:\htdocs\_project_ommu_module_albums\modules\album\components"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\album\models" "D:\htdocs\_project_ommu_module_albums\modules\album\models"
+--
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\album\controllers\o" "D:\htdocs\_project_ommu_module_albums\modules\album\controllers\o"
+--
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\album\views\o" "D:\htdocs\_project_ommu_module_albums\modules\album\views\o"
+
 
 
 
