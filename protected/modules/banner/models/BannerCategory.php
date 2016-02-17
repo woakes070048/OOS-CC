@@ -180,7 +180,7 @@ class BannerCategory extends CActiveRecord
 		$criteria->with = array(
 			'view_cat' => array(
 				'alias'=>'view_cat',
-				'select'=>'category_name, category_desc'
+				//'select'=>'category_name, category_desc, banners'
 			),
 			'creation_relation' => array(
 				'alias'=>'creation_relation',
@@ -196,8 +196,8 @@ class BannerCategory extends CActiveRecord
 		$criteria->compare('creation_relation.displayname',strtolower($this->creation_search), true);
 		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
-		if(isset($_GET['BannerCategory_sort']))
-			$criteria->order = 'cat_id DESC';
+		if(!isset($_GET['BannerCategory_sort']))
+			$criteria->order = 't.cat_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -274,9 +274,34 @@ class BannerCategory extends CActiveRecord
 				),
 			);
 			$this->defaultColumns[] = array(
-				'header'=>'Count',
-				'value' => '$data->view_cat->banners',
+				'header' => 'Publish',
+				'value' => '$data->view_cat->banner_publish > $data->limit ? $data->limit."/".$data->view_cat->banner_publish : $data->view_cat->banner_publish',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
 			);
+			$this->defaultColumns[] = array(
+				'header' => 'Pending',
+				'value' => '$data->view_cat->banner_pending',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+			);
+			$this->defaultColumns[] = array(
+				'header' => 'Expired',
+				'value' => '$data->view_cat->banner_expired',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+			);
+			$this->defaultColumns[] = array(
+				'header' => 'Total',
+				'value' => '$data->view_cat->banners',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+			);
+			/*
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
 				'value' => '$data->creation_relation->displayname',
@@ -307,8 +332,10 @@ class BannerCategory extends CActiveRecord
 					),
 				), true),
 			);
+			*/
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
+					'header'=>'Status',
 					'name' => 'publish',
 					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("publish",array("id"=>$data->cat_id)), $data->publish, 1)',
 					'htmlOptions' => array(

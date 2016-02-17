@@ -52,7 +52,7 @@ class ViewReportCategory extends CActiveRecord
 	 */
 	public function primaryKey()
 	{
-		return ['cat_id'];
+		return 'cat_id';
 	}
 
 	/**
@@ -117,7 +117,7 @@ class ViewReportCategory extends CActiveRecord
 		$criteria->compare('t.category_desc',strtolower($this->category_desc),true);
 
 		if(!isset($_GET['ViewReportCategory_sort']))
-			$criteria->order = 'cat_id DESC';
+			$criteria->order = 't.cat_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

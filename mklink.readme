@@ -55,15 +55,15 @@ protected\modules
 =======
 ///users\\\
 mklink /J "D:\htdocs\_product_oos_career_center\externals\users" "D:\htdocs\_project_ommu_module_users\externals\users"
-mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\users\users.yaml" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\users.yaml"
-mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\users\LICENSE" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\LICENSE"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\assets" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\assets"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\components" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\components"
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\models" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\models"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\users\users.yaml" "D:\htdocs\_project_ommu_module_users\modules\users\users.yaml"
+mklink /H "D:\htdocs\_product_oos_career_center\protected\modules\users\LICENSE" "D:\htdocs\_project_ommu_module_users\modules\users\LICENSE"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\assets" "D:\htdocs\_project_ommu_module_users\modules\users\assets"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\components" "D:\htdocs\_project_ommu_module_users\modules\users\components"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\models" "D:\htdocs\_project_ommu_module_users\modules\users\models"
 --
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\controllers\o" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\controllers\o"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\controllers\o" "D:\htdocs\_project_ommu_module_users\modules\users\controllers\o"
 --
-mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\views\o" "D:\htdocs\_project_ommu_module_users\modules\users_oauth\views\o"
+mklink /J "D:\htdocs\_product_oos_career_center\protected\modules\users\views\o" "D:\htdocs\_project_ommu_module_users\modules\users\views\o"
 
 ///report\\\
 mklink /J "D:\htdocs\_product_oos_career_center\externals\report" "D:\htdocs\_project_ommu_module_reports\externals\report"

@@ -27,10 +27,15 @@
  * @property string $password
  * @property string $creation_date
  * @property string $modified_date
+ * @property string $modified_id
  */
 class OmmuAuthors extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $author_phone;
+	
+	// Variable Search
+	public $modified_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -60,12 +65,15 @@ class OmmuAuthors extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('name, email', 'required'),
+			array('author_phone', 'required', 'on'=>'phone'),
 			array('publish', 'numerical', 'integerOnly'=>true),
 			array('name, email, password', 'length', 'max'=>32),
-			array('password, creation_date, modified_date', 'safe'),
+			array('password, creation_date, modified_date,
+				author_phone', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('author_id, publish, name, email, password, creation_date, modified_date', 'safe', 'on'=>'search'),
+			array('author_id, publish, name, email, password, creation_date, modified_date, modified_id,
+				modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -77,6 +85,8 @@ class OmmuAuthors extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'contact_MANY' => array(self::HAS_MANY, 'OmmuAuthorContact', 'author_id'),
 		);
 	}
 
@@ -88,11 +98,16 @@ class OmmuAuthors extends CActiveRecord
 		return array(
 			'author_id' => 'Author',
 			'publish' => 'Publish',
-			'name' => 'Name',
-			'email' => 'Email',
+			//'name' => 'Name',
+			//'email' => 'Email',
+			'name' => 'Nama',
 			'password' => 'Password',
 			'creation_date' => 'Creation Date',
 			'modified_date' => 'Modified Date',
+			'modified_id' => 'Modified',
+			//'author_phone' => 'Author Phone',
+			'author_phone' => 'Telepon',
+			'modified_search' => 'Modified',
 		);
 	}
 
@@ -132,9 +147,19 @@ class OmmuAuthors extends CActiveRecord
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
+		$criteria->compare('t.modified_id',$this->modified_id);
+		
+		// Custom Search
+		$criteria->with = array(
+			'modified_TO' => array(
+				'alias'=>'modified_TO',
+				'select'=>'displayname'
+			),
+		);
+		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['OmmuAuthors_sort']))
-			$criteria->order = 'author_id DESC';
+			$criteria->order = 't.author_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -169,6 +194,7 @@ class OmmuAuthors extends CActiveRecord
 			$this->defaultColumns[] = 'password';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'modified_date';
+			$this->defaultColumns[] = 'modified_id';
 		}
 
 		return $this->defaultColumns;
@@ -254,16 +280,43 @@ class OmmuAuthors extends CActiveRecord
 			return $model;			
 		}
 	}
+
+	/**
+	 * before validate attributes
+	 */
+	protected function beforeValidate() {
+		if(parent::beforeValidate()) {
+			if(!$this->isNewRecord)
+				$this->modified_id = Yii::app()->user->id;				
+		}
+		return true;
+	}
 	
 	/**
 	 * before save attributes
 	 */
 	protected function beforeSave() {
 		if(parent::beforeSave()) {
-			$this->name = strtolower($this->name);
 			$this->email = strtolower($this->email);
 		}
 		return true;	
+	}
+	
+	/**
+	 * After save attributes
+	 */
+	protected function afterSave() {
+		parent::afterSave();
+		
+		if($this->isNewRecord) {
+			if($this->author_phone != '') {
+				$contact = new OmmuAuthorContact;
+				$contact->author_id = $this->author_id;
+				$contact->type = 1;
+				$contact->contact = $this->author_phone;
+				$contact->save();
+			}
+		}
 	}
 
 }

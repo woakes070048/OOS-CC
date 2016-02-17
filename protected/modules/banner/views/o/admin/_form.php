@@ -11,6 +11,19 @@
  * @contect (+62)856-299-4114
  *
  */
+
+	$cs = Yii::app()->getClientScript();
+$js=<<<EOP
+	$('#Banners_permanent').live('change', function() {
+		var id = $(this).prop('checked');		
+		if(id == true) {
+			$('div#expired-date').slideUp();
+		} else {
+			$('div#expired-date').slideDown();
+		}
+	});
+EOP;
+	$cs->registerScript('expired', $js, CClientScript::POS_END);
 ?>
 
 <?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
@@ -64,7 +77,7 @@
 		echo $form->hiddenField($model,'old_media');
 		if($model->media != '') {
 			$resizeSize = explode(',', $model->category_relation->media_size);
-			$file = Yii::app()->request->baseUrl.'/public/banner/'.$model->media;
+			$file = Yii::app()->request->baseUrl.'/public/banner/'.$model->old_media;
 			$media = '<img src="'.Utility::getTimThumb($file, $resizeSize[0], $resizeSize[1], 1).'" alt="">';
 			echo '<div class="clearfix">';
 			echo $form->labelEx($model,'old_media');
@@ -104,11 +117,27 @@
 		</div>
 	</div>
 
-	<div class="clearfix">
+	<?php 
+	$model->permanent = 0;
+	if($model->isNewRecord || (!$model->isNewRecord && in_array(date('Y-m-d', strtotime($model->expired_date)), array('0000-00-00','1970-01-01'))))
+		$model->permanent = 1;
+	?>
+	
+	<div class="clearfix publish">
+		<?php echo $form->labelEx($model,'permanent'); ?>
+		<div class="desc">
+			<?php echo $form->checkBox($model,'permanent'); ?>
+			<?php echo $form->labelEx($model,'permanent'); ?>
+			<?php echo $form->error($model,'permanent'); ?>
+			<?php /*<div class="small-px silent"></div>*/?>
+		</div>
+	</div>
+	
+	<div id="expired-date" class="clearfix <?php echo $model->permanent == 1 ? 'hide' : ''?>">
 		<?php echo $form->labelEx($model,'expired_date'); ?>
 		<div class="desc">
 			<?php
-			!$model->isNewRecord ? ($model->expired_date != '0000-00-00' ? $model->expired_date = date('d-m-Y', strtotime($model->expired_date)) : '') : '';
+			!$model->isNewRecord ? (!in_array(date('Y-m-d', strtotime($model->expired_date)), array('0000-00-00','1970-01-01-')) ? $model->expired_date = date('d-m-Y', strtotime($model->expired_date)) : '') : '';
 			//echo $form->textField($model,'expired_date');
 			$this->widget('zii.widgets.jui.CJuiDatePicker',array(
 				'model'=>$model,

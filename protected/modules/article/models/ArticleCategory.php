@@ -159,7 +159,7 @@ class ArticleCategory extends CActiveRecord
 		$criteria->with = array(
 			'view_cat' => array(
 				'alias'=>'view_cat',
-				'select'=>'category_name, category_desc'
+				'select'=>'category_name, category_desc, articles'
 			),
 			'creation_relation' => array(
 				'alias'=>'creation_relation',
@@ -175,8 +175,8 @@ class ArticleCategory extends CActiveRecord
 		$criteria->compare('creation_relation.displayname',strtolower($this->creation_search), true);
 		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
-		if(isset($_GET['ArticleCategory_sort']))
-			$criteria->order = 'cat_id DESC';
+		if(!isset($_GET['ArticleCategory_sort']))
+			$criteria->order = 't.cat_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -248,6 +248,9 @@ class ArticleCategory extends CActiveRecord
 			$this->defaultColumns[] = array(
 				'header' => 'Count',
 				'value' => 'CHtml::link($data->view_cat->articles." ".Phrase::trans(26000,1), Yii::app()->controller->createUrl("o/admin/manage",array("category"=>$data->cat_id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
 				'type' => 'raw',
 			);
 			$this->defaultColumns[] = array(
@@ -347,7 +350,7 @@ class ArticleCategory extends CActiveRecord
 		if(parent::beforeValidate()) {		
 			if($this->isNewRecord) {
 				$this->orders = 0;
-				$this->user_id = Yii::app()->user->id;	
+				$this->creation_id = Yii::app()->user->id;	
 			} else
 				$this->modified_id = Yii::app()->user->id;
 

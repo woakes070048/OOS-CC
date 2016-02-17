@@ -52,7 +52,7 @@ class ViewPages extends CActiveRecord
 	 */
 	public function primaryKey()
 	{
-		return ['page_id'];
+		return 'page_id';
 	}
 
 	/**
@@ -117,7 +117,7 @@ class ViewPages extends CActiveRecord
 		$criteria->compare('t.description',strtolower($this->description),true);
 
 		if(!isset($_GET['ViewCorePages_sort']))
-			$criteria->order = 'page_id DESC';
+			$criteria->order = 't.page_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

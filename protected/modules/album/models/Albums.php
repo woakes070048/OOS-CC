@@ -46,6 +46,7 @@ class Albums extends CActiveRecord
 	public $defaultColumns = array();
 	public $media;
 	public $old_media;
+	public $keyword;
 	
 	// Variable Search
 	public $user_search;
@@ -82,10 +83,12 @@ class Albums extends CActiveRecord
 			array('title', 'required'),
 			array('publish, headline, comment_code, photos, comment, view, likes, creation_id, modified_id', 'numerical', 'integerOnly'=>true),
 			array('user_id, media_id', 'length', 'max'=>11),
+			array('
+				keyword', 'length', 'max'=>32),
 			array('title', 'length', 'max'=>128),
 			//array('media', 'file', 'types' => 'jpg, jpeg, png, gif', 'allowEmpty' => true),
 			array('media_id, title, body, quote,
-				media, old_media', 'safe'),
+				media, old_media, keyword', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('album_id, publish, user_id, media_id, headline, comment_code, title, body, quote, photos, comment, view, likes, creation_date, creation_id, modified_date, modified_id,
@@ -107,6 +110,8 @@ class Albums extends CActiveRecord
 			'modified_relation' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 			'likes' => array(self::HAS_MANY, 'AlbumLikes', 'album_id'),
 			'photo' => array(self::HAS_MANY, 'AlbumPhoto', 'album_id'),
+			'tag_MANY' => array(self::HAS_MANY, 'AlbumTag', 'album_id'),
+			'tag_ONE' => array(self::HAS_ONE, 'AlbumTag', 'album_id'),
 		);
 	}
 
@@ -138,6 +143,7 @@ class Albums extends CActiveRecord
 			'modified_search' => 'Modified',
 			'media' => 'Photo',
 			'old_media' => 'Old Photo',
+			'keyword' => 'Tags',
 		);
 	}
 
@@ -211,7 +217,7 @@ class Albums extends CActiveRecord
 		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['Albums_sort']))
-			$criteria->order = 'album_id DESC';
+			$criteria->order = 't.album_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -372,7 +378,7 @@ class Albums extends CActiveRecord
 		if(parent::beforeValidate()) {
 			if($this->isNewRecord)
 				$this->user_id = Yii::app()->user->id;
-			else		
+			else
 				$this->modified_id = Yii::app()->user->id;
 			
 			if($this->headline == 1 && $this->publish == 0)
@@ -415,6 +421,30 @@ class Albums extends CActiveRecord
 					$images->save();
 				}
 			}
+			
+		} else {
+			// Add Tags
+			if($this->keyword != '') {
+				$model = OmmuTags::model()->find(array(
+					'select' => 'tag_id, body',
+					'condition' => 'publish = 1 AND body = :body',
+					'params' => array(
+						':body' => $this->keyword,
+					),
+				));
+				$tag = new AlbumTag;
+				$tag->album_id = $this->album_id;
+				if($model != null) {
+					$tag->tag_id = $model->tag_id;
+				} else {
+					$data = new OmmuTags;
+					$data->body = $this->keyword;
+					if($data->save()) {
+						$tag->tag_id = $data->tag_id;
+					}
+				}
+				$tag->save();
+			}			
 		}
 		
 		if(AlbumSetting::getInfo('headline') == 1) {
@@ -439,7 +469,7 @@ class Albums extends CActiveRecord
 			//delete media photos
 			$album_photo = AlbumPhoto::getPhoto($this->album_id);
 			foreach($album_photo as $val) {
-				if($val->media != '')
+				if($val->media != '' && file_exists($album_path.'/'.$val->media))
 					rename($album_path.'/'.$val->media, 'public/album/verwijderen/'.$val->album_id.'_'.$val->media);
 			}
 		}

@@ -43,6 +43,7 @@
 class Banners extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $permanent;
 	public $old_media;
 	
 	// Variable Search
@@ -77,7 +78,8 @@ class Banners extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('cat_id, title, url, published_date, expired_date', 'required'),
-			array('publish, cat_id, banner_type, view, click', 'numerical', 'integerOnly'=>true),
+			array('publish, cat_id, banner_type, view, click,
+				permanent', 'numerical', 'integerOnly'=>true),
 			array('user_id, creation_id, modified_id', 'length', 'max'=>11),
 			array('title', 'length', 'max'=>64),
 			array('media, user_id, view, click, creation_date, creation_idmodified_date, modified_id,
@@ -124,6 +126,7 @@ class Banners extends CActiveRecord
 			'creation_date' => Phrase::trans(28029,1),
 			'creation_id' => 'Creation',
 			'modified_date' => Phrase::trans(28028,1),
+			'permanent' => 'Permanent',
 			'modified_id' => 'Modified',
 			'old_media' => Phrase::trans(28035,1),
 			'creation_search' => 'Creation',
@@ -200,7 +203,7 @@ class Banners extends CActiveRecord
 		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['Banners_sort']))
-			$criteria->order = 'banner_id DESC';
+			$criteria->order = 't.banner_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -283,6 +286,13 @@ class Banners extends CActiveRecord
 				'name' => 'media',
 				'value' => '$data->media != "" ? CHtml::link($data->media, Yii::app()->request->baseUrl.\'/public/banner/\'.$data->media, array(\'target\' => \'_blank\')) : "-"',
 				'type' => 'raw',
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'click',
+				'value' => '$data->url != "-" ? $data->click : "-"',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),	
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'published_date',
@@ -438,6 +448,9 @@ class Banners extends CActiveRecord
 		$controller = strtolower(Yii::app()->controller->id);
 		if(parent::beforeValidate()) {	
 			if($this->isNewRecord) {
+				//if(self::getBanner($this->cat_id, 'count') >= $this->category_relation->limit)
+				//	$this->addError('cat_id', Phrase::trans($this->category_relation->name, 2).'" cannot be uploaded. jumlah banner sudah melebihi batas maksimal (limit).');
+				
 				//$this->orders = 0;
 				$this->user_id = Yii::app()->user->id;		
 			} else
@@ -457,17 +470,20 @@ class Banners extends CActiveRecord
 				else
 					if($validation == 1 && $bannerSize[0] != $size[0] && $bannerSize[1] != $size[1])
 						$this->addError('media', 'The file "'.$media->name.'" cannot be uploaded. ukuran banner ('.$size[0].' x '.$size[1].') tidak sesuai dengan kategori ('.$bannerSize[0].' x '.$bannerSize[1].')');
+				
 			} else {
-				//if($this->isNewRecord)
+				if($this->isNewRecord)
 					$this->addError('media', 'Media cannot be blank.');
 			}
 			
-			if(($this->published_date != '' && $this->expired_date != '') && ($this->published_date >= $this->expired_date))
-				$this->addError('expired_date', Phrase::trans(28034,1));
+			if(in_array(date('Y-m-d', strtotime($this->expired_date)), array('0000-00-00','1970-01-01')))
+				$this->permanent = 1;
 			
-			/* if(count(self::getBanner($this->cat_id)) >= $this->cat->limit) {
-				$this->addError('cat_id', Phrase::trans(28047,1));
-			} */
+			if($this->permanent == 1)
+				$this->expired_date = '00-00-0000';
+			
+			if($this->permanent != 1 && ($this->published_date != '' && $this->expired_date != '') && ($this->published_date >= $this->expired_date))
+				$this->addError('expired_date', Phrase::trans(28034,1));
 		}
 		return true;
 	}
@@ -477,9 +493,10 @@ class Banners extends CActiveRecord
 	 */
 	protected function beforeSave() {
 		if(parent::beforeSave()) {			
-			if(!$this->isNewRecord) {
+			$action = strtolower(Yii::app()->controller->action->id);
+			if(!$this->isNewRecord && $action == 'edit') {
 				//Update banner photo
-				$banner_path = "public/banner/";
+				$banner_path = "public/banner";
 				
 				$this->media = CUploadedFile::getInstance($this, 'media');
 				if($this->media instanceOf CUploadedFile) {
@@ -487,7 +504,7 @@ class Banners extends CActiveRecord
 					if($this->media->saveAs($banner_path.'/'.$fileName)) {
 						if(BannerSetting::getInfo(1, 'media_resize') == 1)
 							self::resizeBanner($banner_path.'/'.$fileName, $this->category_relation->media_size);
-						if($this->old_media != '')
+						if($this->old_media != '' && file_exists($banner_path.'/'.$this->old_media))
 							rename($banner_path.'/'.$this->old_media, 'public/banner/verwijderen/'.$this->banner_id.'_'.$this->old_media);
 						$this->media = $fileName;
 					}
@@ -509,7 +526,7 @@ class Banners extends CActiveRecord
 		parent::afterSave();
 		
 		if($this->isNewRecord) {
-			$banner_path = "public/banner/";
+			$banner_path = "public/banner";
 			
 			$this->media = CUploadedFile::getInstance($this, 'media');
 			if($this->media instanceOf CUploadedFile) {
@@ -529,8 +546,8 @@ class Banners extends CActiveRecord
 	protected function afterDelete() {
 		parent::afterDelete();
 		//delete article image
-		$banner_path = "public/banner/";
-		if($this->media != '')
+		$banner_path = "public/banner";
+		if($this->media != '' && file_exists($banner_path.'/'.$this->media))
 			rename($banner_path.'/'.$this->media, 'public/banner/verwijderen/'.$this->banner_id.'_'.$this->media);
 	}
 

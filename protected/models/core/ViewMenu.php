@@ -51,7 +51,7 @@ class ViewMenu extends CActiveRecord
 	 */
 	public function primaryKey()
 	{
-		return ['menu_id'];
+		return 'menu_id';
 	}
 
 	/**
@@ -114,7 +114,7 @@ class ViewMenu extends CActiveRecord
 		$criteria->compare('t.title',strtolower($this->title),true);
 
 		if(!isset($_GET['ViewMenu_sort']))
-			$criteria->order = 'menu_id DESC';
+			$criteria->order = 't.menu_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
