@@ -28,7 +28,11 @@ return array(
 		'timthumb_url_replace' => 0,		
 		'timthumb_url_replace_website' => 'http://nirwasita.com',	//default http
 		// access system *from product
-		'product_access_system' => 'ommu.opensource',
+		'product_access_system' => 'opensource.ommu.co.cc',
+		'oauth_server_options' => array(
+			//'http://ommu.co',
+			'http://localhost/_project_ommu_platform_development',
+		),
 	),
 );
 ?>
