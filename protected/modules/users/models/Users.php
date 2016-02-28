@@ -33,9 +33,14 @@
  * @property integer $verified
  * @property string $creation_date
  * @property string $creation_ip
+ * @property string $modified_date
+ * @property string $modified_id
  * @property string $lastlogin_date
  * @property string $lastlogin_ip
- * @property string $lastlogin_from
+ * @property string $update_date
+ * @property string $update_ip
+ * @property integer $locale_id
+ * @property integer $timezone_id
  *
  * The followings are the available model relations:
  * @property OmmuUserLevel $level
@@ -72,15 +77,16 @@ class Users extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('email, displayname', 'required'),
-			array('level_id, profile_id, language_id, enabled, verified', 'numerical', 'integerOnly'=>true),
-			array('source_id', 'length', 'max'=>11),
-			array('email, lastlogin_from', 'length', 'max'=>32),
+			array('level_id, profile_id, language_id, enabled, verified, locale_id, timezone_id', 'required', 'on'=>'edit'),
+			array('level_id, profile_id, language_id, enabled, verified, locale_id, timezone_id', 'numerical', 'integerOnly'=>true),
+			array('source_id, modified_id', 'length', 'max'=>11),
+			array('email', 'length', 'max'=>32),
 			array('displayname', 'length', 'max'=>64),
-			array('creation_ip, lastlogin_ip', 'length', 'max'=>20),
-			array('source_id, level_id, profile_id', 'safe'),
+			array('creation_ip, lastlogin_ip, update_ip', 'length', 'max'=>20),
+			array('source_id, photos', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('user_id, source_id, level_id, profile_id, language_id, email, displayname, photos, enabled, verified, creation_date, creation_ip, lastlogin_date, lastlogin_ip, lastlogin_from', 'safe', 'on'=>'search'),
+			array('user_id, source_id, level_id, profile_id, language_id, email, displayname, photos, enabled, verified, creation_date, creation_ip, modified_date, modified_id, lastlogin_date, lastlogin_ip, update_date, update_ip, locale_id, timezone_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -92,7 +98,7 @@ class Users extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'level_relation' => array(self::BELONGS_TO, 'OmmuUserLevel', 'level_id'),
+			'level_TO' => array(self::BELONGS_TO, 'UserLevel', 'level_id'),
 		);
 	}
 
@@ -114,9 +120,14 @@ class Users extends CActiveRecord
 			'verified' => 'Verified',
 			'creation_date' => 'Creation Date',
 			'creation_ip' => 'Creation Ip',
+			'modified_date' => 'Modified Date',
+			'modified_id' => 'Modified',
 			'lastlogin_date' => 'Lastlogin Date',
 			'lastlogin_ip' => 'Lastlogin Ip',
-			'lastlogin_from' => 'Lastlogin From',
+			'update_date' => 'Update Date',
+			'update_ip' => 'Update Ip',
+			'locale_id' => 'Locale',
+			'timezone_id' => 'Timezone',
 		);
 	}
 
@@ -135,13 +146,17 @@ class Users extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
+		$controller = strtolower(Yii::app()->controller->id);
 
 		$criteria=new CDbCriteria;
 
-		if(isset($_GET['user']))
-			$criteria->compare('t.user_id',$_GET['user']);
-		else
-			$criteria->compare('t.user_id',$this->user_id);
+		$criteria->compare('t.user_id',$this->user_id,true);
+		if($controller == 'o/member') {
+			$criteria->addNotInCondition('t.level_id',array(1));
+			$criteria->compare('t.level_id',$this->level_id);
+		} else if($controller == 'o/admin') {
+			$criteria->compare('t.level_id',1);
+		}
 		$criteria->compare('t.source_id',strtolower($this->source_id),true);
 		if(isset($_GET['level']))
 			$criteria->compare('t.level_id',$_GET['level']);
@@ -157,10 +172,20 @@ class Users extends CActiveRecord
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		$criteria->compare('t.creation_ip',strtolower($this->creation_ip),true);
+		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
+			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
+		if(isset($_GET['modified']))
+			$criteria->compare('t.modified_id',$_GET['modified']);
+		else
+			$criteria->compare('t.modified_id',$this->modified_id);
 		if($this->lastlogin_date != null && !in_array($this->lastlogin_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.lastlogin_date)',date('Y-m-d', strtotime($this->lastlogin_date)));
 		$criteria->compare('t.lastlogin_ip',strtolower($this->lastlogin_ip),true);
-		$criteria->compare('t.lastlogin_from',strtolower($this->lastlogin_from),true);
+		if($this->update_date != null && !in_array($this->update_date, array('0000-00-00 00:00:00', '0000-00-00')))
+			$criteria->compare('date(t.update_date)',date('Y-m-d', strtotime($this->update_date)));
+		$criteria->compare('t.update_ip',strtolower($this->update_ip),true);
+		$criteria->compare('t.locale_id',$this->locale_id);
+		$criteria->compare('t.timezone_id',$this->timezone_id);
 
 		if(!isset($_GET['Users_sort']))
 			$criteria->order = 't.user_id DESC';
@@ -203,9 +228,14 @@ class Users extends CActiveRecord
 			$this->defaultColumns[] = 'verified';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'creation_ip';
+			$this->defaultColumns[] = 'modified_date';
+			$this->defaultColumns[] = 'modified_id';
 			$this->defaultColumns[] = 'lastlogin_date';
 			$this->defaultColumns[] = 'lastlogin_ip';
-			$this->defaultColumns[] = 'lastlogin_from';
+			$this->defaultColumns[] = 'update_date';
+			$this->defaultColumns[] = 'update_ip';
+			$this->defaultColumns[] = 'locale_id';
+			$this->defaultColumns[] = 'timezone_id';
 		}
 
 		return $this->defaultColumns;
@@ -216,6 +246,7 @@ class Users extends CActiveRecord
 	 */
 	protected function afterConstruct() {
 		if(count($this->defaultColumns) == 0) {
+			$controller = strtolower(Yii::app()->controller->id);
 			/*
 			$this->defaultColumns[] = array(
 				'class' => 'CCheckBoxColumn',
@@ -223,46 +254,32 @@ class Users extends CActiveRecord
 				'selectableRows' => 2,
 				'checkBoxHtmlOptions' => array('name' => 'trash_id[]')
 			);
+			$this->defaultColumns[] = array(
+				'name' => 'user_id',
+				'value' => '$data->user_id',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+			);
 			*/
 			$this->defaultColumns[] = array(
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = 'source_id';
-			$this->defaultColumns[] = 'level_id';
-			$this->defaultColumns[] = 'profile_id';
-			$this->defaultColumns[] = 'language_id';
-			$this->defaultColumns[] = 'email';
 			$this->defaultColumns[] = 'displayname';
-			$this->defaultColumns[] = 'photos';
-			if(!isset($_GET['type'])) {
+			$this->defaultColumns[] = 'email';
+			if(!in_array($controller, array('o/admin'))) {
 				$this->defaultColumns[] = array(
-					'name' => 'enabled',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("enabled",array("id"=>$data->user_id)), $data->enabled, 1)',
+					'name' => 'level_id',
+					'value' => 'Phrase::trans($data->level_TO->name,2)',
 					'htmlOptions' => array(
-						'class' => 'center',
+						//'class' => 'center',
 					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
+					'filter'=>UserLevel::getTypeMember(),
 					'type' => 'raw',
 				);
 			}
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'verified',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("verified",array("id"=>$data->user_id)), $data->verified, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
+			//$this->defaultColumns[] = 'photos';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -290,34 +307,34 @@ class Users extends CActiveRecord
 				), true),
 			);
 			$this->defaultColumns[] = 'creation_ip';
-			$this->defaultColumns[] = array(
-				'name' => 'lastlogin_date',
-				'value' => 'Utility::dateFormat($data->lastlogin_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'lastlogin_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'enabled',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("enabled",array("id"=>$data->user_id)), $data->enabled, 1)',
 					'htmlOptions' => array(
-						'id' => 'lastlogin_date_filter',
+						'class' => 'center',
 					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
+					'filter'=>array(
+						1=>Phrase::trans(588,0),
+						0=>Phrase::trans(589,0),
 					),
-				), true),
-			);
-			$this->defaultColumns[] = 'lastlogin_ip';
-			$this->defaultColumns[] = 'lastlogin_from';
+					'type' => 'raw',
+				);
+			}
+			if(!isset($_GET['type']) && $controller != 'o/admin') {
+				$this->defaultColumns[] = array(
+					'name' => 'verified',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("verified",array("id"=>$data->user_id)), $data->verified, 1)',
+					'htmlOptions' => array(
+						'class' => 'center',
+					),
+					'filter'=>array(
+						1=>Phrase::trans(588,0),
+						0=>Phrase::trans(589,0),
+					),
+					'type' => 'raw',
+				);
+			}
 		}
 		parent::afterConstruct();
 	}
@@ -344,6 +361,9 @@ class Users extends CActiveRecord
 	 */
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
+			$controller = strtolower(Yii::app()->controller->id);
+			$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
+			
 			if($this->isNewRecord) {
 				$setting = OmmuSettings::model()->findByPk(1, array(
 					'select' => 'signup_approve, signup_verifyemail',
@@ -353,7 +373,17 @@ class Users extends CActiveRecord
 				$this->profile_id = 1;
 				$this->enabled = $setting->signup_approve == 1 ? 1 : 0;
 				$this->verified = $setting->signup_verifyemail == 1 ? 0 : 1;
-				$this->creation_ip = $_SERVER['REMOTE_ADDR'];				
+				$this->creation_ip = $_SERVER['REMOTE_ADDR'];
+				
+			} else {				
+				// Admin modify member
+				if(in_array($currentAction, array('o/admin/edit','o/member/edit'))) {
+					$this->modified_date = date('Y-m-d H:i:s');
+					$this->modified_id = Yii::app()->user->id;
+				} else {
+					$this->update_date = date('Y-m-d H:i:s');
+					$this->update_ip = $_SERVER['REMOTE_ADDR'];
+				}				
 			}
 		}
 		return true;
