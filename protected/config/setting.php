@@ -31,7 +31,7 @@ return array(
 		'product_access_system' => 'opensource.ommu.co.cc',
 		'oauth_server_options' => array(
 			//'http://ommu.co',
-			'http://localhost/_project_ommu_platform_development',
+			'http://localhost/_product_ommu.co',
 		),
 	),
 );
