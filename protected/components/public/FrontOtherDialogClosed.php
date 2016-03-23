@@ -72,16 +72,16 @@ class FrontOtherDialogClosed extends CWidget
 		
 		/*
 		if($this->homeLink===null)
-			$links[]=CHtml::link(Phrase::trans(599,0),'javascript:void(0);', array('title'=>Phrase::trans(599,0),'class'=>'closed','off_address'=>''));
+			$links[]=CHtml::link(Yii::t('phrase', 'Close'), 'javascript:void(0);', array('title'=>Yii::t('phrase', 'Close'), 'class'=>'closed','off_address'=>''));
 		elseif($this->homeLink!==false)
 			$links[]=$this->homeLink;
 		*/
 		
 		if(!empty($this->links)) {
 			echo implode($this->separator,$links);
-			echo ' '.Phrase::trans(598,0).' ';
+			echo ' '.Yii::t('phrase', 'or').' ';
 		}
-		echo CHtml::link(Phrase::trans(599,0),'javascript:void(0);', array('title'=>Phrase::trans(599,0),'class'=>'closed','off_address'=>''));
+		echo CHtml::link(Yii::t('phrase', 'Close'), 'javascript:void(0);', array('title'=>Yii::t('phrase', 'Close'), 'class'=>'closed','off_address'=>''));
 	}
 }
 ?>

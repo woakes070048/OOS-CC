@@ -445,10 +445,10 @@ class OmmuSettings extends CActiveRecord
 			$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
 			if($this->online == 0) {
 				if($this->construction_date == '') {
-					$this->addError('construction_date', Phrase::trans(317,0));
+					$this->addError('construction_date', Yii::t('phrase', 'Maintenance date cannot be blank.'));
 				}
 				if($this->construction_text == '') {
-					$this->addError('construction_text', Phrase::trans(318,0));
+					$this->addError('construction_text', Yii::t('phrase', 'Maintenance text cannot be blank.'));
 				}
 			}
 			
@@ -461,8 +461,8 @@ class OmmuSettings extends CActiveRecord
 					$this->event_finishdate = '00-00-0000';	
 				}
 			
-				if($this->event != 0 && ($this->event_startdate != '' && $this->event_finishdate != '') && ($this->event_startdate >= $this->event_finishdate))
-					$this->addError('event_finishdate', Phrase::trans(28034,1));
+				if($this->event != 0 && ($this->event_startdate != '' && $this->event_finishdate != '') && (date('Y-m-d', strtotime($this->event_startdate)) >= date('Y-m-d', strtotime($this->event_finishdate))))
+					$this->addError('event_finishdate', Yii::t('phrase', 'Event Finishdate tidak boleh lebih kecil'));
 			}
 			
 			$this->modified_id = Yii::app()->user->id;
