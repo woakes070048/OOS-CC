@@ -1,6 +1,8 @@
 <?php
 /**
  * OmmuMenuCategory
+ * version: 1.1.0
+ *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co) 
  * @created date 15 January 2016, 16:53 WIB
@@ -321,8 +323,8 @@ class OmmuMenuCategory extends CActiveRecord
 	 * 0 = unpublish
 	 * 1 = publish
 	 */
-	public static function getCategory($publish=null, $type=null) {
-		
+	public static function getCategory($publish=null, $type=null) 
+	{		
 		$criteria=new CDbCriteria;
 		if($publish != null)
 			$criteria->compare('t.publish',$publish);

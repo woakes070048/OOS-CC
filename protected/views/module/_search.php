@@ -4,6 +4,7 @@
  * @var $this ModuleController
  * @var $model OmmuPlugins
  * @var $form CActiveForm
+ * version: 1.1.0
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2012 Ommu Platform (ommu.co)
@@ -39,11 +40,6 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('code'); ?><br/>
-			<?php echo $form->textField($model,'code'); ?>
-		</li>
-
-		<li>
 			<?php echo $model->getAttributeLabel('name'); ?><br/>
 			<?php echo $form->textField($model,'name',array('size'=>60,'maxlength'=>128)); ?>
 		</li>
@@ -51,16 +47,6 @@
 		<li>
 			<?php echo $model->getAttributeLabel('desc'); ?><br/>
 			<?php echo $form->textField($model,'desc',array('size'=>60,'maxlength'=>255)); ?>
-		</li>
-
-		<li>
-			<?php echo $model->getAttributeLabel('version'); ?><br/>
-			<?php echo $form->textField($model,'version',array('size'=>16,'maxlength'=>16)); ?>
-		</li>
-
-		<li>
-			<?php echo $model->getAttributeLabel('icon'); ?><br/>
-			<?php echo $form->textField($model,'icon',array('size'=>16,'maxlength'=>16)); ?>
 		</li>
 
 		<li>

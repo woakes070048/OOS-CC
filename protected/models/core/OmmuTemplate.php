@@ -1,6 +1,8 @@
 <?php
 /**
  * OmmuTemplate
+ * version: 1.1.0
+ *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2012 Ommu Platform (ommu.co)
  * @link https://github.com/oMMu/Ommu-Core
@@ -232,7 +234,7 @@ class OmmuTemplate extends CActiveRecord
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter'=>OmmuPlugins::getPluginArray('id', 0),
+				'filter'=>OmmuPlugins::getPlugin(0, 'id'),
 				'type' => 'raw',
 			);
 			$this->defaultColumns[] = array(

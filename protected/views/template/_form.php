@@ -4,6 +4,7 @@
  * @var $this TemplateController
  * @var $model OmmuTemplate
  * @var $form CActiveForm
+ * version: 1.1.0
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2012 Ommu Platform (ommu.co)
@@ -39,7 +40,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'plugin_id'); ?>
 			<div class="desc">
-				<?php echo $form->dropDownList($model,'plugin_id', OmmuPlugins::getPluginArray('id')); ?>
+				<?php echo $form->dropDownList($model,'plugin_id', OmmuPlugins::getPlugin(null, 'id')); ?>
 				<?php echo $form->error($model,'plugin_id'); ?>
 			</div>
 		</div>
