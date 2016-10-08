@@ -4,6 +4,7 @@
  * @var $this PhotoController
  * @var $model AlbumPhoto
  * @var $form CActiveForm
+ * version: 0.1.4
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2014 Ommu Platform (ommu.co)
@@ -49,8 +50,8 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('desc'); ?><br/>
-			<?php echo $form->textArea($model,'desc',array('rows'=>6, 'cols'=>50)); ?>
+			<?php echo $model->getAttributeLabel('caption'); ?><br/>
+			<?php echo $form->textArea($model,'caption',array('rows'=>6, 'cols'=>50)); ?>
 		</li>
 
 		<li>
